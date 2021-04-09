@@ -1,0 +1,575 @@
+﻿<Window x:Class="ProjektWPF.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjektWPF"
+        mc:Ignorable="d"
+        Loaded="Window_Loaded"
+        
+ Title="MainWindow" Height="720" Width="1010" FontSize="20">
+
+    <Window.Resources>
+        <ControlTemplate x:Key="szablon" TargetType="{x:Type Button}">
+            <Border Name="Border" BorderBrush="DarkGreen" BorderThickness="3"
+                    CornerRadius="0 0 4 4" Background="YellowGreen"
+                    TextBlock.Foreground="Black">
+                <Grid >
+                    <Rectangle Name="FocusCue" Visibility =" Hidden"
+                               Stroke ="Black" StrokeThickness ="3"
+                               StrokeDashArray ="1 2" StrokeDashCap="Round"
+                               SnapsToDevicePixels ="True" />
+                    <ContentPresenter RecognizesAccessKey="True"
+                                      Margin="{TemplateBinding Padding}" />
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="Background"
+                            Value="Yellow" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="Border" Property="Background"
+                            Value="DarkGreen" />
+                    <Setter TargetName="Border" Property="BorderBrush"
+                            Value="YellowGreen" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border"
+                         Property="TextBlock.Foreground"
+                         Value="LightGray" />
+                    <Setter TargetName="Border" Property="Background"
+                         Value="SlateGray" />
+                </Trigger>
+
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="GroupTemplate">
+            <TextBlock Text="{Binding Path=Name}"
+                FontWeight="Bold" Foreground="White"
+                Background="Black" Margin="0,5,0,0"
+                Padding="3"/>
+        </DataTemplate>
+        <DataTemplate x:Key="GroupTemplate2">
+            <TextBlock Text="{Binding Path=Nazwa}"
+                FontWeight="Bold" Foreground="White"
+                Background="Black" Margin="0,5,0,0"
+                Padding="3"/>
+        </DataTemplate>
+    </Window.Resources>
+    <TabControl>
+        <TabItem Header="Zawodnicy">
+            <DockPanel >
+                <DockPanel>
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3">
+                            <Button  Click="AddZawodnik" Grid.Row="0" Margin="5" Padding="128,3" Template="{StaticResource szablon}">Dodaj</Button>
+                            <Button Click="FilterZawodnik" Margin="30,5,5,5" Padding="10,3">Filtruj</Button>
+                            <Button Click="UnFilterZawodnik" Margin="30,5,5,5"  Padding="10,3">Usuń Filtr</Button>
+                            <ComboBox Margin="30,5,5,5" SelectedIndex="0">
+                                <ComboBoxItem Selected="SortZawNone">Bez sortowania</ComboBoxItem>
+                                <ComboBoxItem Selected="SortZawName">Po imieniu</ComboBoxItem>
+                                <ComboBoxItem Selected="SortZawSurname">Po nazwisku</ComboBoxItem>
+                                <ComboBoxItem Selected="SortZawNumber">Po numerze</ComboBoxItem>
+                            </ComboBox>
+
+                            <ComboBox Margin="30,5,5,5" SelectedIndex="0">
+                                <ComboBoxItem Selected="GroupZawNone" >Bez grupowania</ComboBoxItem>
+                                <ComboBoxItem  Selected="GroupZawPosition">Po pozycji</ComboBoxItem>
+                                <ComboBoxItem Selected="GroupZawAge">Po wieku</ComboBoxItem>
+                                <ComboBoxItem  Selected="GroupZawNumber">Po numerze</ComboBoxItem>
+                            </ComboBox>
+
+                        </StackPanel>
+                        <Grid Grid.Row="1">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition />
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+
+                            <TextBox LostFocus="SzukajZawReset" TextChanged="SzukajZawChange"  PreviewMouseDown="SzukajZaw" Name="SzukajZawodnik" Grid.Row="1" Margin="5" Text="Szukaj..." >
+
+                            </TextBox>
+                            <ListBox Grid.Row="2" Margin="5" Name="ZawodnicyList" DisplayMemberPath="Dane"   >
+                                <ListBox.GroupStyle>
+                                    <GroupStyle HeaderTemplate="{StaticResource GroupTemplate}"/>
+                                </ListBox.GroupStyle>
+
+                            </ListBox>
+                            <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                                <Button  IsEnabled="{Binding ElementName=ZawodnicyList, Path=SelectedItems.Count}" Click="DelZawodnik" Margin="5,5,50,5" Padding="20,6" Template="{StaticResource szablon}">Usuń</Button>
+                                <Button  IsEnabled="{Binding ElementName=ZawodnicyList, Path=SelectedItems.Count}" Click="EditZawodnik"  Margin="5" Padding="20,6" Template="{StaticResource szablon}">Edytuj</Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <GridSplitter IsEnabled="False" Grid.RowSpan="4"   Grid.Column="1"  Width="15" HorizontalAlignment="Center"/>
+                        <Grid Grid.Row="1" Grid.Column="2" DataContext="{Binding ElementName=ZawodnicyList, Path=SelectedItem}">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition  Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Margin="5">Imie:</Label>
+                            <Label Grid.Row="1" Margin="5">Nazwisko:</Label>
+                            <Label Grid.Row="2" Margin="5,5,75,30">Adres:</Label>
+                            <Label Grid.Row="3" Margin="5">Pozycja:</Label>
+                            <Label Grid.Row="4" Margin="5">Numer:</Label>
+                            <StackPanel Margin="20" Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2">
+                                <CheckBox IsChecked="{Binding Path=Leftleg}" IsEnabled="False" Margin="75,5,200,5">Lewonożny</CheckBox>
+                                <CheckBox IsChecked="{Binding Path=Rightleg}" IsEnabled="False" Margin="5">Prawonożny</CheckBox>
+                            </StackPanel>
+                            <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Grid.Row="6" Grid.RowSpan="1" Grid.ColumnSpan="2">
+
+                                <TextBlock TextWrapping="WrapWithOverflow"  Margin="100,20,100,20" VerticalAlignment="Center" MaxWidth="160" HorizontalAlignment="Center" Text="{Binding Path=Druzyna.Nazwa}" ></TextBlock>
+
+
+                                <Image  Margin="15" Source="{Binding Path=Druzyna.ImagePath}"></Image>
+                            </StackPanel>
+
+                            <Label  Grid.Column="1" Margin="5"  Content="{Binding Path=Name,UpdateSourceTrigger=PropertyChanged}" />
+                            <Label Grid.Column="1" Grid.Row="1" Margin="5" Content="{Binding Path=Surname,UpdateSourceTrigger=PropertyChanged}"/>
+                            <Label Grid.Column="1" Grid.Row="2" Margin="5" Content="{Binding Path=Adres}"/>
+                            <Label Grid.Column="1" Grid.Row="3" Margin="5" Content="{Binding Path=Position}"></Label>
+                            <Label Grid.Column="1" Grid.Row="4" Margin="5" Content="{Binding Path=Number,UpdateSourceTrigger=PropertyChanged}"></Label>
+
+                            <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=ZawodnicyList, Path=SelectedItems.Count}" Click="DetailsZawodnik" Margin="5,5,5,5" Padding="20,6"  HorizontalAlignment="Right" Grid.Row="7" Grid.ColumnSpan="2">Szczegóły</Button>
+                        </Grid>
+                    </Grid>
+                </DockPanel>
+            </DockPanel>
+
+
+
+
+        </TabItem>
+        <TabItem Header="Rozgrywki">
+            <DockPanel >
+                <DockPanel>
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="23*" />
+                            <ColumnDefinition Width="20*"/>
+                            <ColumnDefinition Width="18*"/>
+                            <ColumnDefinition Width="260*"/>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="642*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="6">
+                            <Button Template="{StaticResource szablon}" Click="AddRozgrywka" Grid.Row="0" Margin="5" Padding="128,3" >Dodaj</Button>
+                            <Button Click="FilterRozgrywka" Margin="75,5,5,5" Padding="10,3">Filtruj</Button>
+                            <Button Click="UnFilterRozgrywka" Margin="75,5,5,5"  Padding="10,3">Usuń Filtr</Button>
+                            <ComboBox Margin="75,5,5,5" SelectedIndex="0">
+                                <ComboBoxItem Selected="SortRozNone">Bez sortowania</ComboBoxItem>
+                                <ComboBoxItem Selected="SortRozDate">Po dacie</ComboBoxItem>
+                                <ComboBoxItem Selected="SortRozPlace">Po miesjcu</ComboBoxItem>
+                            </ComboBox>
+
+
+
+                        </StackPanel>
+                        <Grid Grid.Row="1" Grid.ColumnSpan="4">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition />
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+
+
+                            <TextBox LostFocus="SzukajRozReset" TextChanged="SzukajRozChange"  PreviewMouseDown="SzukajRoz" Name="SzukajRozgrywka" Grid.Row="1" Margin="5" Text="Szukaj..." ></TextBox>
+                            <ListBox SelectionChanged="ManytoManyCantBind" Name="RozgrywkiList" Grid.Row="2" Margin="5" DisplayMemberPath="DaneRoz">
+
+                            </ListBox>
+                            <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                                <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=RozgrywkiList, Path=SelectedItems.Count}" Click="DelRozgrywka" Margin="5,5,50,5" Padding="20,6" >Usuń</Button>
+                                <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=RozgrywkiList, Path=SelectedItems.Count}"  Click="EditRozgrywka" Margin="5" Padding="20,6">Edytuj</Button>
+                            </StackPanel>
+                        </Grid>
+
+                        <GridSplitter Grid.Row="1" IsEnabled="False"  Grid.Column="4" Width="15" HorizontalAlignment="Center"/>
+                        <Grid Grid.Row="1" Grid.Column="5" DataContext="{Binding ElementName=RozgrywkiList, Path=SelectedItem}" >
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto"/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition  Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="auto"/>
+                            </Grid.RowDefinitions>
+                            <Label Margin="5,15,5,10">Drużyna 1:</Label>
+                            <Label Grid.Row="1" Margin="5,5,5,10">Drużyna 2:</Label>
+                            <Label Grid.Row="2" Margin="5,5,75,10">Data:</Label>
+                            <Label Grid.Row="3" Margin="5,5,5,10">Miejsce :</Label>
+
+
+                            <Grid Grid.Row="6" Grid.RowSpan="1" Grid.ColumnSpan="2">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Image Name="Image1" Grid.Column="0"  Margin="15,15,15,15"  ></Image>
+                                <Image   Grid.Column="1"  Margin="20"  Source="Files/vs.jpg"  RenderTransformOrigin="0.5,0.5" >
+                                    <Image.RenderTransform>
+                                        <RotateTransform x:Name="MyAnimatedTransform" Angle="0" />
+                                    </Image.RenderTransform>
+                                    <Image.Triggers>
+                                        <EventTrigger RoutedEvent="Image.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation
+                Storyboard.TargetName="MyAnimatedTransform"
+                Storyboard.TargetProperty="(RotateTransform.Angle)"
+                From="0.0" To="360" Duration="0:0:4" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Image.Triggers>
+                                </Image>
+                                <Image Name="Image2"  Grid.Column="2"  Margin="15,15,15,15"   ></Image>
+                            </Grid>
+
+                            <Label Name="Team1"  Grid.Column="1" Margin="5,15,5,5"   />
+                            <Label Name="Team2"  Grid.Column="1" Grid.Row="1" Margin="5" Content="{Binding Path=Druzyna2.Nazwa}"/>
+                            <Label Grid.Column="1" Grid.Row="2" Margin="5" Content="{Binding Path=Date}"/>
+                            <Label Grid.Column="1" Grid.Row="3" Margin="5" Content="{Binding Path=Place}"></Label>
+
+                            <StackPanel Orientation="Horizontal"  Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right">
+                                <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=RozgrywkiList, Path=SelectedItems.Count}" Click="DrużynyRozgrywka" Margin="10" Padding="20,6"  HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7">Drużyny</Button>
+                                <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=RozgrywkiList, Path=SelectedItems.Count}" Click="DeatailsRozgrywka" Margin="10" Padding="20,6"  HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7">Szczegóły</Button>
+                            </StackPanel>
+                        </Grid>
+                    </Grid>
+                </DockPanel>
+            </DockPanel>
+        </TabItem>
+        <TabItem Header="Zawody">
+            <DockPanel >
+                <DockPanel>
+
+                    <Grid Margin="4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="2*" />
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+
+                        <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3">
+                            <Button  Template="{StaticResource szablon}" Grid.Row="0" Margin="5" Padding="128,3" Click="AddZawodys" >Dodaj</Button>
+                            <Button Margin="30,5,5,5" Padding="10,3" Click="FiltrZawody">Filtruj</Button>
+                            <Button Margin="30,5,5,5"  Padding="10,3" Click="UnFilterZawody">Usuń Filtr</Button>
+<ComboBox Margin="30,5,5,5" SelectedIndex="0">
+    <ComboBoxItem Selected="SortZawodNone">Bez sortowania</ComboBoxItem>
+    <ComboBoxItem Selected="SortZawodNazwa">Po nazwie</ComboBoxItem>
+    <ComboBoxItem Selected="SortZawodData">Po dacie rozpoczęcia</ComboBoxItem>
+</ComboBox>
+<ComboBox Margin="30,5,5,5" SelectedIndex="0">
+    <ComboBoxItem Selected="GroupZawodNone" >Bez grupowania</ComboBoxItem>
+    <ComboBoxItem  Selected="GroupZawodData">Rok rozpoczęcia</ComboBoxItem>
+    <ComboBoxItem Selected="GroupZawodRodzaj">Rodzaj</ComboBoxItem>
+</ComboBox>
+
+</StackPanel>
+<Grid Grid.Row="1">
+    <Grid.RowDefinitions>
+        <RowDefinition Height="auto"/>
+        <RowDefinition Height="auto"/>
+        <RowDefinition />
+        <RowDefinition Height="auto"/>
+    </Grid.RowDefinitions>
+
+
+    <TextBox LostFocus="SzukajZawodyReset" TextChanged="SzukajZawodyChange"  PreviewMouseDown="SzukajZawody" Name="SzukajZawodyy"  Grid.Row="1" Margin="5" >Szukaj...</TextBox>
+    <ListBox Grid.Row="2" Margin="5" Name="ZawodyList" DisplayMemberPath="Dane"  >
+        <ListBox.GroupStyle>
+            <GroupStyle HeaderTemplate="{StaticResource GroupTemplate}"/>
+        </ListBox.GroupStyle>
+    </ListBox>
+    <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+        <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=ZawodyList, Path=SelectedItems.Count}" Margin="5,5,50,5" Padding="20,6" Click="DeleteZawody" >Usuń</Button>
+        <Button  Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=ZawodyList, Path=SelectedItems.Count}" Margin="5" Padding="20,6" Click="EdytujZawody">Edytuj</Button>
+    </StackPanel>
+</Grid>
+
+<GridSplitter Grid.Column="1" Width="15" HorizontalAlignment="Center" IsEnabled="False" Grid.RowSpan="3" Grid.Row="1" />
+<Grid Grid.Row="1" Grid.Column="2" DataContext="{Binding ElementName=ZawodyList, Path=SelectedItem}">
+    <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"/>
+        <ColumnDefinition/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+        <RowDefinition Height="auto"/>
+        <RowDefinition  Height="auto"/>
+        <RowDefinition Height="auto"/>
+        <RowDefinition Height="auto"/>
+        <RowDefinition Height="auto"/>
+        <RowDefinition Height="auto"/>
+        <RowDefinition Height="*"/>
+        <RowDefinition Height="auto"/>
+    </Grid.RowDefinitions>
+    <Label Margin="5">Nazwa:</Label>
+    <Label Grid.Row="1" Margin="5">Data rozpoczęcia:</Label>
+    <Label Grid.Row="2" Margin="5">Data zakończenia:</Label>
+    <Label Grid.Row="3" Margin="5">Rodzaj:</Label>
+    <Label  Grid.Column="1" Margin="5"  Content="{Binding Path=nazwa}" />
+    <Label Grid.Column="1" Grid.Row="1" Margin="5" Content="{Binding Path=DataStart}" />
+    <Label Grid.Column="1" Grid.Row="2" Margin="5" Content="{Binding Path=DataStop}"/>
+    <Label Grid.Column="1" Grid.Row="3" Margin="5" Content="{Binding Path=rodzaj}"></Label>
+    <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=ZawodyList, Path=SelectedItems.Count}" Margin="10" Padding="20,6" HorizontalAlignment="Left" Grid.Column="0" Grid.Row="7" Click="Drabinka">Drabinka</Button>
+    <Button Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=ZawodyList, Path=SelectedItems.Count}" Margin="10,10,10,10" Padding="20,6" HorizontalAlignment="Left" Grid.Column="2" Grid.Row="7" Click="DodajDruzyna">Dodaj drużyny</Button>
+</Grid>
+</Grid>
+</DockPanel>
+</DockPanel>
+
+</TabItem>
+<TabItem Header="Wyniki">
+    <DockPanel >
+        <DockPanel>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3">
+                    <Button Template="{StaticResource szablon}" Grid.Row="0" Margin="5" Padding="128,3" Click="AddWynik" >Dodaj</Button>
+                    <Button Margin="75,5,5,5" Padding="10,3" Click="FilterWyniki">Filtruj</Button>
+                    <Button Margin="75,5,5,5"  Padding="10,3" Click="UnfilterWyniki">Usuń Filtr</Button>
+
+                </StackPanel>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition />
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+
+                    <TextBox  Grid.Row="1" Margin="5" Name="SzukajWynik" LostFocus="SzukajWynReset" TextChanged="SzukajWynChange"  PreviewMouseDown="SzukajWyn">Szukaj...</TextBox>
+                    <ListBox Name="WynikiList" Grid.Row="2" Margin="5" SelectionChanged="ManytoManyCantBind2"/>
+                    <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <Button IsEnabled="{Binding ElementName=WynikiList, Path=SelectedItems.Count}" Template="{StaticResource szablon}" Margin="5,5,50,5" Padding="20,6" Click="DelWyniki" >Usuń</Button>
+
+                    </StackPanel>
+                </Grid>
+
+                <GridSplitter Grid.Column="1" Width="15" HorizontalAlignment="Center" IsEnabled="False" Grid.RowSpan="3" Grid.Row="1" />
+                <Grid Grid.Row="1" Grid.Column="2" DataContext="{Binding ElementName=WynikiList, Path=SelectedItem}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="auto"/>
+                        <ColumnDefinition/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Margin="5,15,5,10">Drużyna 1:</Label>
+                    <Label Grid.Row="1" Margin="5,5,5,10">Drużyna 2:</Label>
+                    <Label Grid.Row="2" Margin="5,5,75,10">Data:</Label>
+                    <Label Grid.Row="3" Margin="5,5,5,10">Miejsce :</Label>
+                    <Label Grid.Row="4" Margin="5,5,5,10">Wynik :</Label>
+
+
+                    <Grid Grid.Row="6" Grid.RowSpan="1" Grid.ColumnSpan="2">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+                        <Image Grid.Column="0"  Margin="10,10,10,10"  Name="Image11"></Image>
+                        <Image   Grid.Column="1"  Margin="20"  Source="Files/vs.jpg"  RenderTransformOrigin="0.5,0.5" >
+                            <Image.RenderTransform>
+                                <RotateTransform x:Name="MyAnimatedTransform2" Angle="0" />
+                            </Image.RenderTransform>
+                            <Image.Triggers>
+                                <EventTrigger RoutedEvent="Image.Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation
+                Storyboard.TargetName="MyAnimatedTransform2"
+                Storyboard.TargetProperty="(RotateTransform.Angle)"
+                From="0.0" To="360" Duration="0:0:4" RepeatBehavior="Forever"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Image.Triggers>
+                        </Image>
+                        <Image  Grid.Column="2"  Margin="10"   Name="Image22"></Image>
+                    </Grid>
+
+                    <Label  Grid.Column="1" Margin="5,15,5,5"   Name="Dru1"  />
+                    <Label Grid.Column="1" Grid.Row="1" Margin="5"  Name="Dru2" />
+                    <Label Grid.Column="1" Grid.Row="2" Margin="5" Content="{Binding Path=Rozgryweczka}"/>
+                    <Label Grid.Column="1" Grid.Row="3" Margin="5" Name="Miejscóweczka"></Label>
+
+                    <StackPanel Grid.Column="1" Grid.Row="4" Margin="5" Orientation="Horizontal">
+                        <Label Content="{Binding Path=Name, Source=Dru1}"></Label>
+                        <StackPanel HorizontalAlignment="Center" Grid.Row="1" Orientation="Horizontal" Grid.Column="1" Grid.ColumnSpan="1">
+                            <Label Content="{Binding Path=Wynik1}" Name="WynikTextBox1"   VerticalContentAlignment="Center" Margin="5"></Label>
+                            <Label Content=":"   VerticalContentAlignment="Center" Margin="5"></Label>
+                            <Label Content="{Binding Path=Wynik2}" Name="WynikTextBox2"   VerticalContentAlignment="Center" Margin="5"></Label>
+                        </StackPanel>
+                        <Label Content="{Binding Path=Name, Source=Dru2}"></Label>
+                    </StackPanel>
+
+
+                    <StackPanel Orientation="Horizontal"  Grid.Column="1" Grid.Row="7" HorizontalAlignment="Right">
+                        <Button IsEnabled="{Binding ElementName=WynikiList, Path=SelectedItems.Count}" Template="{StaticResource szablon}" Margin="10" Padding="20,6"  HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7" Click="TeamWyniki">Drużyny</Button>
+                        <Button IsEnabled="{Binding ElementName=WynikiList, Path=SelectedItems.Count}" Template="{StaticResource szablon}" Margin="10" Padding="20,6"  HorizontalAlignment="Right" Grid.Column="1" Grid.Row="7" Click="DetailsWyniki">Szczegóły</Button>
+                    </StackPanel>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+</TabItem>
+<TabItem Header="Drużyny">
+    <DockPanel >
+        <DockPanel>
+            <Grid Margin="4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" />
+                    <ColumnDefinition Width="2*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
+
+                <StackPanel Orientation="Horizontal" Grid.ColumnSpan="3">
+                    <Button  Grid.Row="0" Margin="5" Padding="90,3" Click="DodajDruzyne" Template="{StaticResource szablon}">Dodaj drużynę</Button>
+                    <Button IsEnabled="{Binding ElementName=lista_druzyn, Path=SelectedItems.Count}" Template="{StaticResource szablon}" 
+                                Grid.Row="0" Margin="5" Padding="25,3" Click="DodajZawodnikaDoDruzyny">Dodaj zawodnika do drużyny</Button>
+                    <Button 
+                                Margin="5" Padding="25,3" Click="FiltrujDruzyne">Filtruj drużyny</Button>
+                    <Button Margin="5"  Padding="25,3" Click="UsunFilterDruzyna" >Usuń Filtr</Button>
+
+                </StackPanel>
+                <Grid Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition />
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+
+
+                    <TextBox LostFocus="SzukajDruzynyReset" TextChanged="SzukajDruzynyChange"  PreviewMouseDown="SzukajDruzyny" 
+                                Name="Szukaj_druzyny" Grid.Row="1" Margin="5" Text="Szukaj..."></TextBox>
+                    <ListBox Grid.Row="2" Margin="5" Name="lista_druzyn" DisplayMemberPath="DaneDruzyny" 
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible">
+                        <ListBox.GroupStyle>
+                            <GroupStyle HeaderTemplate="{StaticResource GroupTemplate2}"/>
+                        </ListBox.GroupStyle>
+                    </ListBox>
+                    <StackPanel Grid.Row="3"  Orientation="Horizontal" HorizontalAlignment="Center">
+
+                        <Button Margin="5,5,50,5" Padding="20,6" Click="UsunDruzyne" Template="{StaticResource szablon}"
+                                        IsEnabled="{Binding ElementName=lista_druzyn, Path=SelectedItems.Count}">Usuń</Button>
+                        <Button Margin="5" Padding="20,6" Click="EdytujDruzyne" Template="{StaticResource szablon}"
+                                        IsEnabled="{Binding ElementName=lista_druzyn, Path=SelectedItems.Count}">Edytuj</Button>
+                    </StackPanel>
+                </Grid>
+
+                <!--<GridSplitter Grid.Column="1" Width="15" HorizontalAlignment="Center"/>-->
+                <Grid Grid.Row="1" Grid.Column="2" DataContext="{Binding ElementName=lista_druzyn, Path=SelectedItem}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="auto"/>
+                    </Grid.RowDefinitions>
+                    <Label Margin="5,5,5.2,5" Grid.ColumnSpan="2">Nazwa:</Label>
+                    <Label Grid.Row="1" Margin="5,5,5.2,5" Grid.ColumnSpan="2">Kraj:</Label>
+                    <Label Grid.Row="2" Margin="5,5,5.6,29.8">Siedziba (własny stadion):</Label>
+                    <Label Grid.Row="3" Margin="5,5.2,5.2,5.8" Grid.ColumnSpan="2">Sukcesy:</Label>
+
+
+                    <Label  Grid.Column="1" Margin="4.8,5,4.6,5"  Content="{Binding Path=Nazwa,UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
+                    <Label Grid.Column="1" Grid.Row="1" Margin="4.8,5,4.6,5" Content="{Binding Path=Country,UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2" />
+                    <Label Grid.Column="1" Grid.Row="2" Margin="4.8,5,4.6,4.8" Content="{Binding Path=City,UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2"/>
+                    <Label Grid.Column="1" Grid.Row="3" Margin="4.8,5.2,4.6,5.8" Content="{Binding Path=Succes,UpdateSourceTrigger=PropertyChanged}" Grid.ColumnSpan="2"></Label>
+                    <Label Grid.Column="0" Grid.Row="4" Margin="4.8,5.2,4.6,5.8" Content="Sponsorzy" Grid.ColumnSpan="2"></Label>
+                    <Label Grid.Column="1" Grid.Row="4" Margin="4.8,5.2,4.6,5.8" Content="{Binding Path=Sponsors,UpdateSourceTrigger=PropertyChanged}"></Label>
+                    <Label Grid.Column="0" Grid.Row="5" Margin="4" Content="Właściciel:"></Label>
+                    <Label Grid.Row="5" Grid.Column="1" Margin="4" Content="{Binding Path=Owner,UpdateSourceTrigger=PropertyChanged}"></Label>
+                    <Label Grid.Row="6" Grid.Column="0" Margin="4" Content="Lista zawodnikow:"/>
+                    <ListBox Name="lista_zawodnikow_druzyna" Grid.Column="0" Grid.Row="7" Margin="5,4.2,5.2,5.6" ItemsSource="{Binding Path=lista_zawodnikow}"
+                                     ScrollViewer.VerticalScrollBarVisibility="Visible"></ListBox>
+                    <Image Grid.Row="7" Grid.Column="2" Margin="9.8,11.4,9.6,11.4"  Source="{Binding Path=ImagePath}"
+                                   Height="150" Grid.ColumnSpan="2" Grid.RowSpan="2" Stretch="Uniform"></Image>
+                    <Button Name="usunZawodnikaZDruzyny" Grid.Column="0" Grid.Row="8" Margin="4" Padding="20,6" Click="UsunZawodnikaZDruzyny" HorizontalContentAlignment="Center"
+                                    Template="{StaticResource szablon}" IsEnabled="{Binding ElementName=lista_druzyn, Path=SelectedItems.Count}">Usuń zawodnika z drużyny</Button>
+                </Grid>
+            </Grid>
+        </DockPanel>
+    </DockPanel>
+</TabItem>
+
+</TabControl>
+</Window>

@@ -1,0 +1,118 @@
+﻿<Window x:Class="ProjektWPF.Zawodnicy.DetailsZawodnik"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:ProjektWPF.Zawodnicy"
+        mc:Ignorable="d"
+        Title="DetailsZawodnik" Height="750" Width="600"  FontSize="16">
+    <Window.Resources>
+        <ControlTemplate x:Key="szablon" TargetType="{x:Type Button}">
+            <Border Name="Border" BorderBrush="DarkGreen" BorderThickness="3"
+                    CornerRadius="10 10 10 10" Background="YellowGreen"
+                    TextBlock.Foreground="Black" >
+                <Grid >
+                    <Rectangle Name="FocusCue" Visibility =" Hidden"
+                               Stroke ="Black" StrokeThickness ="3"
+                               StrokeDashArray ="1 2" StrokeDashCap="Round"
+                               SnapsToDevicePixels ="True" />
+                    <ContentPresenter RecognizesAccessKey="True" HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"
+                                      Margin="{TemplateBinding Padding}" />
+                </Grid>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="Border" Property="Background"
+                            Value="Yellow" />
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="Border" Property="Background"
+                            Value="DarkGreen" />
+                    <Setter TargetName="Border" Property="BorderBrush"
+                            Value="YellowGreen" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border"
+                         Property="TextBlock.Foreground"
+                         Value="LightGray" />
+                    <Setter TargetName="Border" Property="Background"
+                         Value="SlateGray" />
+                </Trigger>
+
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+    </Window.Resources>
+    <Grid Name="DetailsGrid" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition  Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <Label Margin="5">Imie:</Label>
+        <StackPanel Grid.Row="1">
+            <Label  Margin="5">Nazwisko:</Label>
+            <Label  Margin="5">Wiek:</Label>
+        </StackPanel>
+        <Label Grid.Row="2" Margin="5,5,100,30">Adres:</Label>
+        <Label Grid.Row="3" Margin="5">Pozycja:</Label>
+        <Label Grid.Row="4" Margin="5,5,5,5"  VerticalAlignment="Top">Numer:</Label>
+        <StackPanel HorizontalAlignment="Center" Margin="20" Orientation="Horizontal" Grid.Row="5" Grid.ColumnSpan="2">
+            <CheckBox IsChecked="{Binding Path=Leftleg}" IsEnabled="False" Margin="5,5,200,5">Lewonożny</CheckBox>
+            <CheckBox IsChecked="{Binding Path=Rightleg}" IsEnabled="False" Margin="5">Prawonożny</CheckBox>
+        </StackPanel >
+        <StackPanel Grid.ColumnSpan="2" HorizontalAlignment="Center"  Orientation="Horizontal" Grid.Row="6">
+            <Label  Margin="5">Liczba spotkań:</Label>
+            <Label  Margin="5,5,100,5" Content="{Binding Path=Spotkania}"></Label>
+            <Label  Margin="5">Gole:</Label>
+            <Label  Margin="5,5,100,5" Content="{Binding Path=Gole}"></Label>
+            <Label  Margin="5">Asysty:</Label>
+            <Label  Margin="5" Content="{Binding Path=Asysyty}"></Label>
+        </StackPanel >
+
+        <StackPanel Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Label  Margin="5,5,2,5">Minuty gry:</Label>
+            <Label  Margin="5,5,80,5" Content="{Binding Path=Minuty}"></Label>
+            <Label  Margin="5,5,2,5">Strzały</Label>
+            <Label  Margin="5,5,80,5" Content="{Binding Path=Strzaly}"></Label>
+            <Label  Margin="5">Strzały na bramke</Label>
+            <Label  Margin="5,5,5,5" Content="{Binding Path=Nabramke}"></Label>
+        </StackPanel>
+
+        <StackPanel Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Image Width="50" Height="auto" Margin="5" Source="../Files/redcard.png"></Image>
+            <Label  Margin="5,5,250,5" Content="{Binding Path=Redcard}"></Label>
+            <Image Width="28" Height="auto" Margin="5,5,15,5" Source="../Files/yellowcard.jpg"></Image>
+            <Label  Margin="5" Content="{Binding Path=Yellowcard}"></Label>
+        </StackPanel>
+        <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Grid.Row="9" Grid.RowSpan="1" Grid.ColumnSpan="2">
+            <TextBlock TextWrapping="WrapWithOverflow"  Margin="100,20,100,20" VerticalAlignment="Center" MaxWidth="160" HorizontalAlignment="Center" Text="{Binding Path=Druzyna.Nazwa}" ></TextBlock>
+
+
+            <Image  Margin="15" Source="{Binding Path=Druzyna.ImagePath}"></Image>
+        </StackPanel>
+
+        <Label  Grid.Column="1" Margin="5"  Content="{Binding Path=Name}" />
+        <StackPanel Grid.Column="1" Grid.Row="1">
+            <Label Margin="5" Content="{Binding Path=Surname}" />
+            <Label Margin="5" Content="{Binding Path=Age}" />
+        </StackPanel>
+        <Label Grid.Column="1" Grid.Row="2" Margin="5" Content="{Binding Path=Adres}"/>
+        <Label Grid.Column="1" Grid.Row="3" Margin="5" Content="{Binding Path=Position}"></Label>
+        <Label Grid.Column="1" Grid.Row="4" Margin="5" Content="{Binding Path=Number}"></Label>
+
+        <Button Margin="10" Padding="60,6" FontSize="18"  HorizontalAlignment="Center" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="10" Click="Close" Template="{StaticResource szablon}">Zamknij</Button>
+    </Grid>
+</Window>
